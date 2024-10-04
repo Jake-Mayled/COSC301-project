@@ -1,0 +1,2 @@
+#This is an example .env file, paste your OpenAI key below and copy into a new file called '.env'
+OPENAI_API_KEY="YOUR API KEY HERE"

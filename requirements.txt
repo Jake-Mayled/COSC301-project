@@ -1,0 +1,9 @@
+onnxruntime==1.19.2
+python-dotenv==1.0.1 # For reading environment variables stored in .env file
+langchain==0.3.2
+langchain-community==0.3.1
+langchain-openai==0.2.1 # For embeddings
+unstructured==0.15.13 # Document loading
+chromadb==0.5.11 # Vector storage
+openai==1.51.0 # For embeddings
+tiktoken==0.7.0  # For embeddings 

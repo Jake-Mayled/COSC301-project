@@ -19,22 +19,51 @@ with open("marking_rubric.txt") as file:
     rubric = file.read()
 
 def main():
-    javaFiles = getJavaFiles()
-    response = evaluateCodeWithRubric(javaFiles)
-    print(response)
+    submissionsDirectory = unique_directories()
+    for directory in submissionsDirectory:
+        print(f"Getting Java files from submissions/{directory}")
+        javaFiles = getJavaFiles(directory)
+        print("Retrieved files")
+        response = evaluateCodeWithRubric(javaFiles)
+        print(response)
 
-#Gets all java files from chroma DB
-def getJavaFiles():
+#Gets the unique directory names from the files stored in the DB
+def unique_directories():
+    # Load the existing ChromaDB
+    chroma_db = Chroma(persist_directory=CHROMA_PATH, embedding_function=embedding_function)
+    
+    # Retrieve all documents in the database
+    all_docs = chroma_db.similarity_search(query="", k=1000)
+    
+    # Extract unique directory names from the metadata
+    unique_directories = {doc.metadata.get('submission_directory') for doc in all_docs if 'submission_directory' in doc.metadata}
+
+    #Prints directories
+    print(f"Found the following directories in the 'submissions' directory, {unique_directories}")
+    
+    # Return the count of unique directories
+    return unique_directories
+
+#Gets all java files from chroma DB that is from the submissionDirectory
+def getJavaFiles(submissionDirectory):
     # Initialize the Chroma vector store
     vector_store = Chroma(persist_directory=CHROMA_PATH, embedding_function=embedding_function)
     #Gets java files from the database
-    retrieved_documents = vector_store.similarity_search("java files", k=10)
-    if not retrieved_documents:
+    retrieved_documents = vector_store.similarity_search(f"java files in {submissionDirectory}", k=10)
+
+    # Filter retrieved_documents by submissionDirectory
+    java_files = [
+        doc for doc in retrieved_documents 
+        if doc.metadata.get('submission_directory') == submissionDirectory
+    ]
+
+    #If javaFiles is empty, print error message and exit program
+    if not java_files:
         print("No Java files found in database")
         exit(1)
     else:
         print("Java files retrieved from database")
-        return retrieved_documents
+        return java_files
 
 #Compiles all java files and checks for any errors
 def compileJavaFiles(javaFiles : list[Document]):
@@ -61,6 +90,7 @@ def evaluateCodeWithRubric(javaFiles):
     if compilation_result == 1:
         return "Java code complied unsuccessfully, mark: 0/10"
     
+    print("Generating mark and feedback")
     #Joins all code files together
     code_text = "\n\n".join([file.page_content for file in javaFiles])
     

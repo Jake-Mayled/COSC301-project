@@ -15,42 +15,11 @@ client = OpenAI()
 embedding_function = OpenAIEmbeddings()
 
 #Marking rubric for java files
-RUBRIC = """
-Evaluate the Java code according to the following marking rubric:
-
-1. [1 mark] I have chosen appropriate datatypes and have created enums where appropriate. Any enums contain appropriate switch statements to provide a visually pleasing representation of the Enum constants.
-2. [2 marks] I have created a class named Coffee, which contains:
-    1) all the features that represent a coffee and/or are used to search the menu including milk, number of shots, sugar and extras. 
-    2) appropriate constructor/s, setters and getters.
-    3) a method that describes the menu item in the format required by the Greek Geek.
-My Coffee class is used to create BOTH 'real' coffees from the menu AND 'dream' coffees (representing the user's filters).
-3. [0.5 marks] I have created a record named Geek to represent the app user (name and phone number).
-4. [2 marks] I have created a class named Menu which contains:
-    1) an appropriate field (data structure) to store and access Coffee objects.
-    2) a method to add Coffee objects to the data structure
-    3) a method to compare coffees in the field (data structure) to a user's 'dream' coffee (parameter), returning an appropriate collection of matching Coffees.
-5. I have created a class named MenuSearcher that contains:
-    1) [1 mark] a method to load the data from menu.txt, returning an instance of the Menu class. 
-    2) [1 mark] a method that requests user input/selection of coffee features e.g. milk type (including a no-milk option), number of shots, sugar (yes/no), price range and extras), returning a Coffee object representing the user's 'dream' coffee.
-    3) [0.5 marks] a method that uses the user's 'dream' Coffee object to search the menu, presenting matches to the user, and allowing selection of a menu item.
-    4) [0.5 marks] a method to obtain the user's information (name and phone number) returning a Geek object, as well as relevant helper methods.
-    5) [0.5 marks] a method to write the Geek user's order information to a text file in the format specified by the Greek Geek.
-    6) [0.5 marks] a main method used to run the program by calling the above methods as appropriate.
-    7) [0.5 marks] code to handle when 1) matches are found 2) no matches are found AND 3) the user closes the dialog.
-
-To achieve full marks in the above sections, please ensure you address each of the following:
-    I have ensured that all mutable types are protected. [Marks deductible if not addressed: 1]
-    My program validates all user input and I've handled all exceptions. [Marks deductible if not addressed: 2]
-    My code is thoroughly documented, with Javadoc blocks for each method. [Marks deductible if not addressed: 2]
-    My program produces the correct output when the test prompts are entered (see table and video below). [Marks deductible if not addressed: 2]
-
-
-Provide a mark /10 and feedback based on the above points and indicate any areas for deduction
-"""
+with open("marking_rubric.txt") as file:
+    rubric = file.read()
 
 def main():
     javaFiles = getJavaFiles()
-    #compileJavaFiles(javaFiles)
     response = evaluateCodeWithRubric(javaFiles)
     print(response)
 
@@ -100,7 +69,7 @@ def evaluateCodeWithRubric(javaFiles):
         model="gpt-4o-mini",
         messages=[{
             "role": "user",
-            "content": f"Evaluate the following Java code according to this marking rubric:\n\n{RUBRIC}\n\nJava Code:\n{code_text}\n\nReturn a mark and feedback.",
+            "content": f"Evaluate the following Java code according to this marking rubric:\n\n{rubric}\n\nJava Code:\n{code_text}\n\nReturn a mark and feedback.",
         }]
     )
     
